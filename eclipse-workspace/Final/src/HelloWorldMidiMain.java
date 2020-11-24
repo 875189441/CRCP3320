@@ -17,10 +17,10 @@ import java.net.*;
 
 //make sure this class name matches your file name, if not fix.
 public class HelloWorldMidiMain extends PApplet {
-
+	XiaoQiu qiu;
 	MelodyPlayer player; // play a midi sequence
 	MidiFileToNotes midiNotes; // read a midi file
-
+ 
 	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
 	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
 	MarkovG<Integer> p2 = new MarkovG<Integer>();
@@ -218,7 +218,7 @@ public class HelloWorldMidiMain extends PApplet {
 		t1.setTokens(tree3);
 		t1.train();
 		System.out.println(String.format("abcccdaadcdaabcadad:  PST L=%d Pmin=%.2f R=1.5",t1.L,t1.pMin));
-	
+	    
 		t1.print();		
 		pt.setTokens(midiNotes.getPitchArray());		
 		pt.train();
