@@ -1,0 +1,91 @@
+
+import java.util.ArrayList;
+public class MarkovG<T> extends ProbabilityGenerator<T>{
+	int lastIndex = -1;
+	int tokenIndex = 0;
+	// set variable 
+	ArrayList<ArrayList<Integer>> transitionTableCount = new ArrayList<ArrayList<Integer>>(); 
+	ArrayList<ArrayList<Float>> transitionTable = new ArrayList<ArrayList<Float>>();
+	
+	//train class 
+	public void train() {
+		for(int i = 0; i < newTokens.size(); i++) {
+			if(alphabet.contains(newTokens.get(i)) == false) {
+				tokenIndex = alphabet.size();
+				alphabet.add(newTokens.get(i));
+				expandTable();
+				if(alphabet.size() > 1)
+					transitionTableCount.get(alphabet.indexOf(newTokens.get(lastIndex))).set(tokenIndex, 1);
+			} else { //if token is listed 				
+				int in = transitionTableCount.get( alphabet.indexOf(newTokens.get(lastIndex))).get(alphabet.indexOf(newTokens.get(i)));
+				in++;
+				transitionTableCount.get(alphabet.indexOf(newTokens.get(lastIndex))).set(alphabet.indexOf(newTokens.get(i)),in);
+			}
+			lastIndex = i; 
+		}
+	}
+	private void expandTable() {
+		ArrayList<Integer> tmp = new ArrayList<Integer>();
+		ArrayList<Float> tmpFloat = new ArrayList<Float>();
+		for(int i = 0; i < transitionTableCount.size(); i++) {
+			tmp.add(0);
+			tmpFloat.add((float) 0);
+		}
+		transitionTableCount.add(tmp);
+		transitionTable.add(tmpFloat);
+		for(int i = 0; i < transitionTableCount.size(); i++) {
+			transitionTableCount.get(i).add(0);
+			transitionTable.get(i).add((float) 0);
+		}
+	}
+	public void normalize() {
+		for(int i = 0; i < transitionTableCount.size(); i++) {
+			int sum = 0;
+			for(int j = 0; j < transitionTableCount.get(i).size(); j++)
+				sum += transitionTableCount.get(i).get(j);
+			for(int j = 0; j < transitionTableCount.get(i).size(); j++) {
+				float k = transitionTableCount.get(i).get(j);
+				if(sum == 0)
+					k = 0;
+				else
+					k /= sum;
+				transitionTable.get(i).set(j,k);
+			}
+		}
+		//System.out.println("Alphabet size: " + alphabet.size() + " TT size: " + transitionTable.size()); //check 
+	}
+	public void print(){ 
+		for(int i = 0; i < transitionTable.size(); i++) {
+			System.out.print("[");
+			for(int j = 0; j < transitionTable.get(i).size(); j++) {
+				System.out.print(transitionTable.get(i).get(j) + ", ");
+			}
+			System.out.println("]");
+		}
+	}
+	//override the generate function
+	void generate(T initToken) {
+		//clear the generated array if full already
+		genarray.clear();
+		for(int i = 0; i < newTokens.size(); i++) {
+			tokenIndex = alphabet.indexOf(initToken);
+			T genToken = generateToken(tokenIndex);
+			genarray.add(genToken);
+			initToken = genToken;
+		}
+	}
+	public T generateToken(int i) {//determine the generated token based off of transition table
+		float randIndex = (float)Math.random();
+		boolean found = false;
+		int index = 0;
+		float total = 0;
+	
+		while(!found && index < alphabet.size()) {
+			total += transitionTable.get(i).get(index);
+			found = randIndex <= total;
+			index++;
+		}
+		if(found) return (T) alphabet.get(index-1);
+		else return (T) alphabet.get(alphabet.size()-1);
+	}
+}

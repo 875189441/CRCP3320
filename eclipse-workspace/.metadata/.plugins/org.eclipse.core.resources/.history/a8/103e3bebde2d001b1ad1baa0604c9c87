@@ -1,0 +1,298 @@
+//Adam Wu 
+import java.util.Iterator;
+import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import java.util.*;
+import oscP5.*;
+import netP5.*;
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.JMC;
+import jm.util.*;
+import jm.midi.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+
+//make sure this class name matches your file name, if not fix.
+public class HelloWorldMidiMain extends PApplet {
+	
+	MelodyPlayer player; // play a midi sequence
+	MidiFileToNotes midiNotes; // read a midi file
+
+	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
+	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
+	MarkovG<Integer> p2 = new MarkovG<Integer>();
+	MarkovG<Double> r2 = new MarkovG<Double>();
+	MarkovOrder<Integer> p3 = new MarkovOrder<Integer>();
+	MarkovOrder<Double> r3 = new MarkovOrder<Double>();
+	Tree<String> t1 = new Tree<String>();
+	Tree<Integer> pt = new Tree<Integer>();//pitch
+	Tree<Double> rt = new Tree<Double>();//for ryhthem
+	boolean play = false;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		PApplet.main("HelloWorldMidiMain"); // change this to match above class & file name
+
+	}
+	float insenity=0;
+	int line =1000;
+	// setting the window size to 300x300
+	public void settings() {
+	size(600,600);
+	snowsystem snow;
+
+		 
+	}
+	
+	// doing all the setup stuff
+	public void setup() {
+		background(0);
+		snowsystem snow;
+		snow =new snowsystem((float) 0.3); 
+OscP5 oscP5;
+		
+		oscP5 = new OscP5(this,6004);
+		oscP5.plug (this,"setAmp","/amp");
+		fill(120, 50, 240);
+
+		// returns a url
+		String filePath = getPath("mid/MaryHadALittleLamb.mid");
+		 //playMidiFile(filePath);
+
+		midiNotes = new MidiFileToNotes(filePath);
+//		// which line to read in --> this object only reads one line (or ie, voice or ie, one instrument)'s worth of data from the file
+		midiNotes.setWhichLine(0);
+
+		player = new MelodyPlayer(this, 100.0f);
+		player.setup();
+		player.setMelody(midiNotes.getPitchArray()); // instead of setting Melody, send it to ProbabilityGen?
+		player.setRhythm(midiNotes.getRhythmArray());
+
+	}
+
+	public void draw() {
+		
+		snowsystem snow= new snowsystem(insenity);;
+		  color(random(0,255));
+		  float ax = 300 ;
+		  float ay= 300;
+		  for( int i=0;i<1000;i++){
+		    float bx =  ax +random(-insenity,insenity);
+		    float by = ay+ random(-insenity,insenity);
+		    circle(random(600),random(600),insenity);
+		    ax=bx;
+		    ay=by;
+		  }
+		  snow.run();
+	}
+	public void setAmp (float amp){
+		  insenity=amp*10;
+		}
+	// this finds the absolute path of a file
+	String getPath(String path) {
+
+		String filePath = "";
+		try {
+			filePath = URLDecoder.decode(getClass().getResource(path).getPath(), "UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return filePath;
+	}
+
+	void playMidiFile(String filename) {
+		Score theScore = new Score("Temporary score");
+		Read.midi(theScore, filename);
+		Play.midi(theScore);
+	}
+
+	public void mouseClicked() {
+
+	}
+
+	// Unit Test One
+	public void UnitTest() {//unit test for tree 
+		String[] abracadabra = {"a", "b", "r", "a", "c", "a", "d", "a", "b", "r", "a"};
+		ArrayList<String> tree1 = new ArrayList<String>(Arrays.asList(abracadabra));
+		t1.setTokens(tree1);
+		t1.train();
+		System.out.println(String.format("abracadabra:  PST L=%d Pmin=%.2f R=1.5",t1.L,t1.pMin));
+		t1.print();
+		t1.clearT();
+		String[] acadaacbda = {"a", "c", "a", "d", "a", "a", "c", "b", "d", "a"};
+		ArrayList<String> tree2 = new ArrayList<String>(Arrays.asList(acadaacbda));
+		t1.setTokens(tree2);
+		t1.train();
+		System.out.println("-----------------");
+		System.out.println(String.format("acadaacbda:  PST L=%d Pmin=%.2f R=1.5",t1.L,t1.pMin));
+		t1.print();
+		t1.clearT();
+		String[] abcccdaadcdaabcadad = {"a", "b", "c", "c", "c", "d", "a", "a", "d", "c", "d", "a", "a", "b", "c", "a", "d", "a", "d"};
+		ArrayList<String> tree3 = new ArrayList<String>(Arrays.asList(abcccdaadcdaabcadad));
+		t1.setTokens(tree3);
+		t1.train();
+		System.out.println(String.format("abcccdaadcdaabcadad:  PST L=%d Pmin=%.2f R=1.5",t1.L,t1.pMin));
+	
+		t1.print();		
+		pt.setTokens(midiNotes.getPitchArray());		
+		pt.train();
+		System.out.println("----------------------------");
+		//System.out.println(": PST L=3 Pmin=0.1 R=1.5");
+		System.out.println(String.format("MaryHadALittleLamb:  PST L=%d Pmin=%.2f R=%d",t1.L,t1.pMin,t1.r));
+		System.out.println("----------------------------");
+		//System.out.println("PitchTree: ");
+		pt.print();
+		
+		//System.out.println("RhythmTree: ");
+		//rt.train();
+		//rt.print();
+
+
+	}
+	class Branch  //雪花6个主分叉的其中一个的绘制——分支类
+	{
+	 float radius,ratio,rotation;//类属性，类中全局变量
+	 Branch(float radius_,float ratio_,float rot){//构造函数并赋值{
+	  radius=radius_;
+	  ratio=ratio_;
+	  rotation=rot;
+	}
+	 void generate()//类方法 ——生成完整的一支雪花分枝
+	{
+	   pushMatrix();
+	   rotate(radians(rotation)); //旋转
+	   float len=getStartLength(radius,ratio);
+	   branch(len);//递归函数
+	   popMatrix();
+	 }
+	 void branch(float len)//主递归函数
+	{
+	     strokeWeight((float) (len*0.15)); //线粗细
+	     strokeCap(ROUND);      //线端点平滑
+	     line(0,0,0,-len);              //画线
+	     translate(0,-len);            //移动
+	     
+	     if(len>2) //递归终止条件
+	    {
+	       pushMatrix();
+	       branch(len*ratio);
+	       popMatrix();
+	       
+	       pushMatrix();
+	       rotate(radians(-60)); //左
+	       branch(getStartLength(len,ratio));
+	       popMatrix();
+	       
+	       pushMatrix();
+	       rotate(radians(60)); //右
+	       branch(getStartLength(len,ratio));
+	       popMatrix();
+	     }
+	 }
+	 
+	 float getStartLength(float length,float  ratio)//生成下次开始产生分叉的起点长度
+	 {
+	    float len=(1-ratio)*length;
+	    return len;
+	 }
+	}
+	class snowflake  //雪花类
+	{
+	   PVector position ,velocity;
+	   float rotation ,aVelocity,radius,ratio;
+	   Branch[] branches=new Branch[6];
+	   
+	    snowflake(PVector pos,PVector vel,float rot,float aVel,float r,float rat)//构造函数并赋值
+	    {
+	     position =pos;
+	     velocity=vel;
+	     rotation=rot;
+	     aVelocity=aVel;
+	     radius=r;
+	     ratio=rat;
+	     
+	     for(int i=0;i<6;i++){ branches[i]=new Branch(radius,ratio,i*60);}//生成一个完整的雪花
+	    }
+	   
+	    void update()
+	    {
+	    position.add(velocity); //速度
+	    rotation+=aVelocity;  //角速度
+	    }
+	    void show()  
+	    {
+	    pushMatrix();
+	    translate(position.x,position.y);
+	    rotate(radians(rotation));
+	    for(Branch b:branches)
+	    {b.generate();}
+	    popMatrix();  
+	    }
+	}
+	class snowsystem   //雪花下落类
+	{
+	  float speed ;
+	  ArrayList<snowflake> snowflakes;
+	  
+	  snowsystem (float speed_){
+	  speed=speed_;
+	  snowflakes=new ArrayList<snowflake>();
+	 }
+
+	void  generate() //随机生成新雪花（多个）
+	{
+	 PVector position =new PVector(random(0,width),0);
+	 PVector velocity =new PVector(0,random(5,10));
+	 float rotation =random(0,360);
+	 float aVel=random(-2,5);
+	 float radius =random(10,20);
+	 float ratio=(float) 0.618;
+	 snowflake s=new snowflake(position,velocity,rotation,aVel,radius,ratio);
+	 snowflakes.add(s);
+	}
+
+	void  emit()  //控制雪的大小的函数 （speed一般小于1，否则会比较卡，看电脑配置吧）
+	{
+	   if(speed >=1)
+	   {
+	   for(int i=0;i<speed;i++){ generate();}
+	   }
+	   else if(speed>0){if(random(1)<speed){generate();}}
+	}
+
+	void update()  //清除落到画布外的雪花
+	{
+	Iterator<snowflake> ite=snowflakes.iterator(); //迭代器，相当于c++中的队列，按顺序移除进入的雪花
+	while(ite.hasNext()){snowflake s=ite.next();s.update();s.show(); //在画布中显示下雪的情状
+	if(s.position.y>(height+s.radius)){ite.remove();}                        //雪花落到画布外就移除
+	} 
+	}
+	void run () //执行雪花下落
+	{ emit();update();}
+	}
+
+	public void keyPressed() {
+		if (key == ' ') {
+			player.reset();
+			println("Melody started!");
+		}
+		if (key == '1') {
+			UnitTest();
+		}
+		
+		if (key == 'P') {
+			if (play == false) {
+				play = true;
+			} else {
+				play = false;
+			}
+		}
+
+	}
+
+}

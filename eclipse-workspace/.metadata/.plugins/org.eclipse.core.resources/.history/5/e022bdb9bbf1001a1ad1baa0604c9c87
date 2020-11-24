@@ -1,0 +1,64 @@
+import java.util.ArrayList ;
+public class ProbabilityGenerator<T> {
+	int n=0;
+	float sum=0;
+	ArrayList <T> alphabet;
+	ArrayList <Integer>alphabet_counts;
+	ProbabilityGenerator() {
+		
+		alphabet= new ArrayList<T>();
+		alphabet_counts = new ArrayList<Integer>();
+		
+		
+	}
+	
+	void train(ArrayList<T>newTokens) {
+		//train
+		int value;
+		float prob;
+		
+		for (int i = 0; i < newTokens.size(); i++) {
+			T token = newTokens.get(i);
+			int index = alphabet.indexOf(token);
+
+			if (index == -1) {
+
+				alphabet.add(newTokens.get(i));
+				alphabet_counts.add(0);//should be 1f
+				
+
+			} else {
+
+				value = alphabet_counts.get(index);
+				value++;
+				alphabet_counts.set(index, value);
+	
+			
+		}
+			 	
+		
+		}
+		
+		for(int j=0;j<newTokens.size();j++ ) {
+			
+		prob = (alphabet_counts.get(j)/sum);
+		System.out.println(prob);}
+
+} 
+T generate() {
+	T newToken=null;
+	
+	return newToken; 
+	
+	
+}
+	ArrayList<T> generate (int length){
+		ArrayList<T> newSequence = new ArrayList<T>();
+		for(int i=0;i<length;i++) {
+			newSequence.add(generate());
+		}
+		return newSequence;
+	}
+	
+	
+}

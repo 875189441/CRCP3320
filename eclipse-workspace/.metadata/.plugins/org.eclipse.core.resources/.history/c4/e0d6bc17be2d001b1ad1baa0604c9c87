@@ -1,0 +1,225 @@
+import java.util.Collections;
+import java.util.ArrayList;
+public class Node<T> extends ProbabilityGenerator<T> {
+	
+	ArrayList<T> tokenSequence;
+	ArrayList<Node<T>> children = new ArrayList<Node<T>>();
+	ArrayList<T> getcount = new ArrayList<T>();
+	int count=1;
+	boolean hasSeq;
+	float thisr;
+	T nextToken;
+	ProbabilityGenerator<T> probG = new ProbabilityGenerator<T>();
+	 ArrayList<Integer> total = new ArrayList<Integer>();
+	 Node(ArrayList<T> curSequence, boolean atEnd, T nextT) {
+			
+			tokenSequence = curSequence;
+			count = 1;
+			hasSeq = atEnd;
+			nextToken = nextT;
+		}
+	 public int input() {
+		 int total=0;
+		 for(int i=0;i<10;i++) {
+			 total =total +alphabet_counts.get(i);
+		 }
+		 return total;
+	 }
+	 public ArrayList<T> getNextToken() {
+			ArrayList<T> nextTokenArray = new ArrayList<T>();
+			nextTokenArray.add(nextToken);
+			return nextTokenArray;
+		}
+	
+	 boolean isSeqAtEndOfDataset() {
+			return hasSeq;
+		}
+	
+    
+	
+    
+	public boolean addNode(Node<T> node) {
+		boolean found = false;
+		int i = 0;
+		if(tokenSequence.equals(node.tokenSequence)) {// if tokenSequence node == add node
+			found = true;
+			count++;
+		if(!node.hasSeq) {
+			trainV(node);
+			
+		}
+		}else if(amISuffix(node)||(tokenSequence.size()==0)) {
+				while(!found && i < children.size()) {
+					found = children.get(i).addNode(node);//add nood to children
+					i++;
+				}
+			if(!found) {
+				children.add(node);
+				found = true;
+				if(node.hasSeq) {
+					trainV(node);
+				}
+			}
+		}
+		return found;
+	}
+	boolean isInputASuffix(ArrayList input) {	
+		boolean isSuffix = false;
+		if (tokenSequence.isEmpty()) {	// empty string is suffix of everything
+			isSuffix = true;
+		} else {
+			for (int i = 0; i < input.size(); i++) {
+				ArrayList<T> checkSublist = new ArrayList<T>(input.subList(i, input.size()));	//curSequence = find the current sequence of size i		
+
+				int inputIsInTokenSeq = tokenSequence.indexOf(checkSublist); // find checkSublist in tokenSequence			
+				if (inputIsInTokenSeq != -1) {
+					isSuffix = true;
+				} else if (checkSublist.equals(tokenSequence)) { // are they the same?
+					isSuffix = true;
+				}
+			}
+		}
+		return isSuffix;
+	}
+	public boolean amISuffix(Node<T> node) {//use sublist fromindex to toinddex
+		if((node.tokenSequence.size() - tokenSequence.size()) < 0)
+			return false;		
+		return tokenSequence.equals(node.tokenSequence.subList(node.tokenSequence.size() - this.tokenSequence.size(), node.tokenSequence.size()));
+	}
+	public boolean pMinElim(int total, double pmin) {
+		boolean remove = false;
+		float num = (count/(float)(total-(tokenSequence.size()-1)));//sequence have occur
+		
+		if(num <= pmin && tokenSequence.size() != 0) {
+			remove = true;
+		}else {
+				for(int i = children.size()-1; i >= 0; i--) {
+					if(children.get(i).pMinElim(total, pmin)) {
+						children.remove(children.get(i));//do removing
+					}
+				}
+				remove = false;
+		}
+		return remove; 
+	}
+	public boolean rElim(float r, Node<T> myRoot) {
+		boolean Remove = false;
+		if(Remove) {		
+			
+			float myRatio = Collections.max(alphabet_counts)/input();
+			float find = myRoot.getcount(alphabet.get(alphabet_counts.indexOf(Collections.max(alphabet_counts))));
+			float rootRatio = find/myRoot.input();
+			thisr = myRatio/rootRatio;
+			Remove = thisr<r;
+		}
+		if(!Remove) {
+			for(int i=children.size();i>0;i--) {
+				boolean remove = children.get(i).rElim(r,this);
+				if(remove==true) {
+					children.remove(children.get(i));
+					
+				}
+			}
+			
+		}
+		
+		return Remove;
+	}
+	T generate(ArrayList<T> initSeq) {
+T newToken = null; //the new token to return
+		
+		// 1. If the tokenSequence equals the initSeq, then return the result the super class ProbabilityGenerator generate().	
+		if (tokenSequence.equals(initSeq)) {
+			newToken = (T) super.generate();
+		} else if (this.isInputASuffix(initSeq)) {	// 2. Else if the tokenSequence is a suffix of the initSeq,
+			// make the pseudo-recursive call to generate(initSeq) via your children.
+			// If the return value is not null, return that value.
+			int i = 0;
+			while (i < children.size()) {
+				T tempToken = (T) (children.get(i)).generate(initSeq);
+				if (tempToken != null) {
+					newToken = tempToken;
+					i = children.size();
+				}
+				i++;
+			}
+			if (newToken == null) { // 3. If none of your children have generated a token (generate(ArrayList initSeq)) keeps on
+									 // returning null), then return the result of the super class ProbabilityGenerator generate().
+				newToken = (T) super.generate();
+			}
+		}
+		return newToken;
+	}
+	ArrayList<T> generate(ArrayList<T> initSeq, int length, int L) {
+		// call generate(initSeq) for length times and return an ArrayList with the result
+		ArrayList<T> newSequence = new ArrayList<T>();
+
+		System.out.print("\n");
+
+		for (int i = 0; i < length; i++) {
+			System.out.println(initSeq);
+			
+			newSequence.add(generate(initSeq));
+			
+			// update initSeq with sequences of size L from the end of the newSequence
+			int m = newSequence.size() - 1;
+			int k = 0;
+			while (k < L && initSeq.size() < newSequence.size()) {
+				if (initSeq.size() < L || initSeq.size() == 0) { 
+					initSeq.add(newSequence.get(m));
+				} else {
+					initSeq.set(k, newSequence.get(m));
+					Collections.reverse(initSeq);
+				}
+				m--;
+				k++;
+			}
+		}
+		return newSequence;
+	}
+	
+
+	public void print() {//to print 
+		System.out.println(tokenSequence); 
+		for(int i = 0; i < children.size(); i++) 
+			children.get(i).print(1);
+	}
+	public void clear() {//clear 
+		tokenSequence.clear();
+		for(int i = 0; i < children.size(); i++)
+			children.get(i).clear();
+		
+	}
+	public void print(int numspaces) {
+		for(int i = 1; i <= numspaces; i++) {
+			System.out.print(" ");
+		}
+		System.out.print("-->");
+		System.out.println(tokenSequence);
+		for(int j = 0; j < children.size(); j++) 
+			children.get(j).print(numspaces + 1);
+	}
+	 int getcount(T t) {
+			int x =alphabet.indexOf(t);
+			
+			return alphabet_counts.get(x);
+		}
+	
+void trainV(Node<T> node) {
+	train(node.getNextToken());
+	
+	
+}
+void getnext () {
+	ArrayList<T> nextTokenArray = new ArrayList<T>();
+	nextTokenArray.add(nextToken);
+	
+}
+
+
+	int getCou(Node<T> token) {
+		int index = alphabet.indexOf(token);
+		return alphabet_counts.get(index);
+	}
+	
+}

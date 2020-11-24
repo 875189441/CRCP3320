@@ -1,0 +1,57 @@
+import java.util.Iterator;
+
+import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import java.util.*;
+import oscP5.*;
+import netP5.*;
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.JMC;
+import jm.util.*;
+import jm.midi.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+class snowsystem   //雪花下落类
+{
+  float speed ;
+  ArrayList<snowflake> snowflakes;
+  
+  snowsystem (float speed_){
+  speed=speed_;
+  snowflakes=new ArrayList<snowflake>();
+ }
+
+void  generate() //随机生成新雪花（多个）
+{
+ PVector position =new PVector(random(0,width),0);
+ PVector velocity =new PVector(0,random(5,10));
+ float rotation =random(0,360);
+ float aVel=random(-2,5);
+ float radius =random(10,20);
+ float ratio=0.618;
+ snowflake s=new snowflake(position,velocity,rotation,aVel,radius,ratio);
+ snowflakes.add(s);
+}
+
+void  emit()  //控制雪的大小的函数 （speed一般小于1，否则会比较卡，看电脑配置吧）
+{
+   if(speed >=1)
+   {
+   for(int i=0;i<speed;i++){ generate();}
+   }
+   else if(speed>0){if(random(1)<speed){generate();}}
+}
+
+void update()  //清除落到画布外的雪花
+{
+Iterator<snowflake> ite=snowflakes.iterator(); //迭代器，相当于c++中的队列，按顺序移除进入的雪花
+while(ite.hasNext()){snowflake s=ite.next();s.update();s.show(); //在画布中显示下雪的情状
+if(s.position.y>(height+s.radius)){ite.remove();}                        //雪花落到画布外就移除
+} 
+}
+void run () //执行雪花下落
+{ emit();update();}
+}

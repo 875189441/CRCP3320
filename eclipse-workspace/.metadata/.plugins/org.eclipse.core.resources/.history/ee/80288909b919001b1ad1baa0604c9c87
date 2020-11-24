@@ -1,0 +1,100 @@
+
+import java.util.ArrayList;
+
+public class Node<T> {
+	ArrayList<T> tokenSequence = new ArrayList<T>();
+	ArrayList<Node> children = new ArrayList<Node>();
+	int counts = 1; 
+
+	Node(ArrayList tokenSeq) {
+		tokenSequence = tokenSeq;
+	}
+
+	
+	public ArrayList<T> getTokenSeq() {
+		return tokenSequence;
+	}
+
+	public void setTokenSeq(ArrayList<T> inSeq) {
+		tokenSequence = inSeq;
+	}
+
+	public int getTokenSeqSize() {
+		return tokenSequence.size();
+	}
+
+	
+	public boolean isASuffix(Node node) {
+		
+		ArrayList<T> nodeSeq = new ArrayList<T>();
+		nodeSeq = node.getTokenSeq(); 
+
+		int from = node.getTokenSeqSize() - tokenSequence.size();
+		int to = node.getTokenSeqSize();
+		ArrayList<T> suffix = new ArrayList<T>(nodeSeq.subList(from, to)); 
+
+		if (tokenSequence.equals(suffix)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean addNode(Node node) {
+		boolean found = false;
+		if (tokenSequence.equals(node.getTokenSeq())) { 
+			found = true;
+			counts++;
+		} else if (isASuffix(node) || (tokenSequence.size() == 0)) { 
+			int index = 0;
+			while (index < children.size() && !found) {
+				found = children.get(index).addNode(node);
+				index++;
+			}
+			if (found == false) {
+				children.add(node); 
+				found = true; 
+			}
+		}
+		return found;
+	} 
+
+	public boolean pMinElimination(int totalTokens, float pMin) {
+		float empProb = counts / ((float) totalTokens - (tokenSequence.size() - 1)); 
+		boolean shouldDelete = empProb < pMin; 
+		
+		if (tokenSequence.size() == 0) {
+			shouldDelete = false;
+		}
+
+		if (shouldDelete == false) {
+			for (int i = children.size() - 1; i >= 0; i--) {
+				if (children.get(i).pMinElimination(totalTokens, pMin) == true) {
+					children.remove(children.get(i));
+				}
+			}
+		}
+		return shouldDelete;
+	}
+
+	public void print() {
+	
+		System.out.println(tokenSequence);
+
+		for (int i = 0; i < children.size(); i++) {
+			children.get(i).print(1);
+		}
+	}
+
+	public void print(int numSpaceBefore) {
+		
+		for (int i = 0; i < numSpaceBefore; i++) {
+			System.out.print("  "); 
+		}
+		System.out.print("->");
+		System.out.println(tokenSequence); 
+		for (int i = 0; i < children.size(); i++) {
+			children.get(i).print(numSpaceBefore + 1); 
+		}
+	}
+}

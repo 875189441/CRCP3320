@@ -1,0 +1,40 @@
+
+import java.util.ArrayList;
+public class Tree<T>   {
+	
+	Node<T> root = new Node<T>();
+	int L = 3;
+	double pMin = 0.15;
+	int sampleSet = 0;
+	float r;
+	Node<T> nndode;
+public void train(ArrayList<T> input) {
+	for(int i = 1; i <= L ; i++) { // i = order #
+		for(int j = 0; j < input.size() - (i - 1); j++) { // j = index into input
+			boolean hasSeqAtEndOfDataset = j + i == input.size(); // set the hasSeqAtEndOfDataset of theNewNode (also can be in constructor like above)
+			ArrayList<T> curSequence = new ArrayList<T>(input.subList(j, j + i));	// curSequence = find the current sequence of size i		
+			T nextToken = null;
+			if (!hasSeqAtEndOfDataset) {
+				nextToken = input.get(j + i);
+			}
+			nndode = new Node<T>( hasSeqAtEndOfDataset); // create a new node with the current sequence & the next token
+			root.addNode(nndode);
+		}
+	}
+	root.train(input);
+	// sum the total tokens in the input here (totalInputTokens) -- this is most easily
+	// done similarly to how we summed our total tokens in the ProbabilityGenerator.
+	
+	root.pMinElim(input.size(), pMin);
+	root.rElim(r, root);
+}
+
+public void print() {
+		root.print();
+}
+public void clearT() {
+	root.clear();
+	root=new Node<T>();
+	
+}
+}

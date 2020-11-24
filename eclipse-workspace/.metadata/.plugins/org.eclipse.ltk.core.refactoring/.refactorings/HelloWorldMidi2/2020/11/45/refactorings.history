@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;MarkovOrder.java&apos; to &apos;HelloWorldMidi/src/(default package)&apos;&#x0A;- Original project: &apos;HelloWorldMidi2&apos;&#x0A;- Destination element: &apos;HelloWorldMidi/src/(default package)&apos;&#x0A;- Original element: &apos;MarkovOrder.java&apos;&#x0A;- Update references to refactored element" description="Move compilation unit" destination="=HelloWorldMidi/src&lt;" element1="/src&lt;{MarkovOrder.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1604370940162" units="1" version="1.0"/>
+</session>

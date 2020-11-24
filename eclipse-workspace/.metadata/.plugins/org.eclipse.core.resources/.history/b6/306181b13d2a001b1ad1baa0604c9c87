@@ -1,0 +1,88 @@
+import java.util.ArrayList;
+
+public class ProbabilityGenerator<T> {
+	ArrayList<T> alphabet; 
+	ArrayList<Integer> alphabet_counts; 
+	float total = 0; 
+
+	ProbabilityGenerator() {
+		alphabet = new ArrayList<T>();
+		alphabet_counts = new ArrayList<Integer>();
+	}
+
+	
+	void train(ArrayList<T> newTokens) {
+
+		for (int i = 0; i <= newTokens.size() - 1; i++) { 
+			int index = alphabet.indexOf(newTokens.get(i));
+			if (index == -1) {
+				index = alphabet.size(); 
+				alphabet.add(newTokens.get(i)); 
+				alphabet_counts.add(0);
+			}
+
+			int val = alphabet_counts.get(index);
+			val = val + 1;
+			alphabet_counts.set(index, val);
+		}
+		total = total + newTokens.size();	
+	}
+	
+
+	void print(ArrayList<T> newTokens) {	
+		for (int i = 0; i < alphabet_counts.size(); i++) {
+			System.out.println("Token: " + alphabet.get(i) + " | " + "Probability:" + alphabet_counts.get(i) / total); // print out all the pitches & rhythms																									
+		}
+	}
+	
+	T generate() {
+		T newToken = null; 
+		
+		ArrayList<Float> newProbs = new ArrayList<Float>(); 
+		ArrayList<Float> probDist =  new ArrayList<Float>();  
+	
+		
+		float rIndex = (float) Math.random();
+		float sum = 0;
+		
+		
+		for (int i = 0; i < alphabet_counts.size(); i++) {
+			probDist.add(alphabet_counts.get(i) / total);
+			
+		}
+			
+		
+		for (int i = 0; i < alphabet.size(); i++) {
+			
+			if (i == 0) {  
+				newProbs.add(probDist.get(0));
+				sum = sum + probDist.get(0);
+			}
+			else {
+				
+				sum = sum + probDist.get(i); 
+				newProbs.add(sum);
+				
+			}
+		}
+		
+		
+		boolean found = false;
+		int i = 0; 
+		
+		while(!found && i < newProbs.size()) {
+			found = rIndex < newProbs.get(i); 
+			i++; 
+		}
+		newToken = alphabet.get(i - 1); 
+		return newToken;
+	}
+
+	ArrayList<T> generate(int length) {
+		ArrayList<T> newSequence = new ArrayList<T>();
+		for (int i = 0; i < length; i++) {
+			newSequence.add(generate());
+		}
+		return newSequence;
+	}
+}

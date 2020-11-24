@@ -1,0 +1,86 @@
+import java.util.ArrayList;
+
+//ProbabilityGenerator trains and generates melodies
+public class ProbabilityGenerator<T> {
+	int pitch;
+	double rhythm;
+
+	// for training
+	ArrayList<T> newTokens = new ArrayList<T>();
+
+	public void setTokens(ArrayList<T> input) {
+		newTokens.clear(); // clear
+		for (int i = 0; i < input.size(); i++)
+			newTokens.add(input.get(i));
+	}
+
+	protected ArrayList<T> genarray = new ArrayList<T>();
+
+	ArrayList<T> getGenArray() {
+		return genarray;
+	}
+
+	// array alphabet
+	protected ArrayList<T> alphabet = new ArrayList<T>();
+
+	// alphabet count
+	private ArrayList<Integer> alphabetcount = new ArrayList<Integer>();
+
+	// count for normalizing
+	float probability;
+	private ArrayList<Float> probabilitydistru = new ArrayList<Float>();
+
+	public void train() {// train class
+		for (int i = 0; i < newTokens.size(); i++) {
+			if (alphabet.contains(newTokens.get(i)) == false) {
+				alphabet.add(newTokens.get(i));
+				alphabetcount.add(1);
+
+			} else {
+
+				int Findex = alphabet.indexOf(newTokens.get(i)); // find index of token in alphabet
+				alphabetcount.set(alphabet.indexOf(newTokens.get(i)), alphabetcount.get(Findex) + 1); // set incremented
+																										// count in
+																										// index
+
+			}
+
+		}
+	}
+
+	public void print(int times) {// print out the probabilities
+		
+		for (int j = 0; j < alphabetcount.size(); j++) {
+			probability = (float) alphabetcount.get(j) / (newTokens.size() * times);
+			System.out.println(alphabet.get(j));
+			System.out.println(probability);
+			probabilitydistru.add(probability);
+		}
+	}
+
+	void generate() {
+		// clear the generated array if full already
+		genarray.clear();
+		// for every note, find the generated token
+		for (int i = 0; i < newTokens.size(); i++) {
+			genarray.add(generateToken());
+		}
+	}
+
+	public T generateToken() {// determine the generated token based off of probability distribution
+		float randIndex = (float) Math.random();
+		boolean found = false;
+		int index = 0;
+		float total = 0;
+
+		while (!found && index < alphabetcount.size()) {
+			total += probabilitydistru.get(index);
+			found = randIndex <= total;
+			index++;
+		}
+		if (found)
+			return alphabet.get(index - 1);
+		else
+			return alphabet.get(alphabet.size() - 1);
+	}
+}

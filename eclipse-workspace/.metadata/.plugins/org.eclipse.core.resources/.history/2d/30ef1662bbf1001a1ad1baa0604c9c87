@@ -1,0 +1,45 @@
+import java.util.ArrayList ;
+public class ProbabilityGenerator<T> {
+	
+	ArrayList <T> alphabet;
+	ArrayList <Integer>alphabet_counts;
+	ProbabilityGenerator() {
+		
+		alphabet= new ArrayList<T>();
+		alphabet_counts = new ArrayList<Integer>();
+		
+		
+	}
+	
+	void train(ArrayList<T>newTokens) {
+		//train
+		
+		int index= alphabet.indexOf(newTokens);
+		for(int i = 0;i<newTokens.size();i++) {
+			if(index==-1) {
+				
+			   
+				alphabet_counts.add(0);
+				
+			}
+			alphabet.indexOf(index++);
+		}
+
+} 
+T generate() {
+	T newToken=null;
+	
+	return newToken; 
+	
+	
+}
+	ArrayList<T> generate (int length){
+		ArrayList<T> newSequence = new ArrayList<T>();
+		for(int i=0;i<length;i++) {
+			newSequence.add(generate());
+		}
+		return newSequence;
+	}
+	
+	
+}

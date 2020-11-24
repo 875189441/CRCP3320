@@ -1,0 +1,65 @@
+import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import processing.core.PVector;
+import processing.core.
+import java.util.*;
+import oscP5.*;
+import netP5.*;
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.JMC;
+import jm.util.*;
+import jm.midi.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+class XiaoQiu
+{
+  PVector loc;
+  float vx=0, vy=0;
+  float r;
+  float baocunr;
+  float angle;
+  float cx,cy,c;
+  boolean bianxiao =true;
+  
+ XiaoQiu(PVector location, float r) 
+ {
+	
+   loc =location;
+   this.r =r ;
+   baocunr = r ;
+ 
+   cx =map(loc.x,0,600,0,180);
+   cy =map(loc.y,0,600,0,180);
+   c=cx+cy;
+ 
+}
+void update(){
+  angle += 0.02*noise(0.001*loc.x,0.001*loc.y);
+  vx = (float) (2*Math.sin(angle));
+  vy = 2*(float)Math.cos(angle);
+  loc.x+=vx;
+  loc.y+=vy;
+  if(bianxiao) r -=0.3;
+  if(r<=0) bianxiao=false;
+  if(!bianxiao) r+=0.3;
+  if(r>=baocunr) bianxiao = true;
+  c+=5;
+  
+}
+void display(){
+  noStroke();
+  color(c%360,100,100);
+  ellipse(loc.x,loc.y,r,r);
+  
+}
+void check(){
+  
+  if(loc.x<0) loc.x=600;
+  if(loc.x>600) loc.x=0;
+  if(loc.y<0) loc.y=600;
+  if(loc.y>600) loc.y=0;
+}
+}

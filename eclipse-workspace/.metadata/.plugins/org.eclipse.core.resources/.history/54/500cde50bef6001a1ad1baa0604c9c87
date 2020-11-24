@@ -1,0 +1,89 @@
+import java.util.ArrayList;
+
+public class ProbabilityGenerator<T> {
+	int n = 0;
+	float sum = 0;
+	int value;
+	float prob;
+
+	ArrayList<T> alphabet;
+	ArrayList<Integer> alphabet_counts;
+    ArrayList<Float>newprobability = new ArrayList<Float>();
+	ProbabilityGenerator() {
+
+		alphabet = new ArrayList<T>();
+		alphabet_counts = new ArrayList<Integer>();
+
+	}
+
+	public void train(ArrayList<T> newTokens) {
+		// train
+
+		for (int i = 0; i < newTokens.size(); i++) {
+			T token = newTokens.get(i);
+			int index = alphabet.indexOf(token);
+
+			if (index == -1) {
+				index = alphabet.size();
+				alphabet.add(newTokens.get(i));
+				alphabet_counts.add(0);// should be 1f
+
+			}
+
+				value = alphabet_counts.get(index);
+				value++;
+				newprobability.add((float)(alphabet_counts.set(index, value)));
+
+
+		}
+
+		sum += newTokens.size();
+		
+		for (int j = 0; j < alphabet.size(); j++) {
+
+			prob = (alphabet_counts.get(j) / sum);
+			System.out.println("unit test1");
+			System.out.println(prob);
+			System.out.println(alphabet.get(j));
+			
+		}
+	
+	}
+
+	T generate() {
+		T newToken = null;
+		float randIndex= (float)Math.random();
+		boolean found =false;
+		int index = 0;
+		float total =0;
+		while(!found && index<newprobability.size()-1) {
+			total +=newprobability.get(index) ;
+			found = randIndex <=total;
+			index++;
+		}
+		if(found)
+			newToken = alphabet.get(index-1);
+		else {
+			newToken = alphabet.get(index);
+			
+		}
+		return newToken;
+
+	}
+
+	public ArrayList<T> generate(int length) {
+		ArrayList<T> newSequence = new ArrayList<T>();
+		for (int i = 0; i < length; i++) {
+			newSequence.add(generate());
+		}
+		return newSequence;
+		
+	}
+	public void unitTest2() {
+		System.out.println("Unit test2");
+		generate(20);
+
+
+}
+	
+	}

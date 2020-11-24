@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+
+//ProbabilityGenerator trains and generates melodies
+public class ProbabilityGenerator<T> {
+	int pitch;
+	double rhythm;
+	
+	//array of example tokens used for training
+	ArrayList<T> tokenArray = new ArrayList<T>();
+	public void setTokens(ArrayList<T> input) { 
+		tokenArray.clear(); //clear the token array if full already
+		for(int i = 0; i < input.size(); i++)
+			tokenArray.add(input.get(i));
+	}
+	
+	//array of generated tokens 
+	protected ArrayList<T> genarray = new ArrayList<T>();
+	ArrayList<T> getGenArray(){
+		return genarray;
+	}
+	//array alphabet 
+	protected ArrayList<T> alphabet = new ArrayList<T>();
+	
+	//alphabet count
+	private ArrayList<Integer> alphabetcount = new ArrayList<Integer>();
+	
+	//normalized count
+	float probability;
+	private ArrayList<Float> probabilitydistru = new ArrayList<Float>();
+	
+	public void train() {//compare tokenArray to alphabet Array
+		for(int i = 0; i < tokenArray.size(); i++) {
+			if(alphabet.contains(tokenArray.get(i)) == false) {
+				alphabet.add(tokenArray.get(i)); 
+				alphabetcount.add(1);
+
+			}else{ //if token is already listed in alphabet
+				//add to previous count to distinguish the number of times the token occurs
+				int alpha = alphabet.indexOf(tokenArray.get(i)); //find index of token in alphabet
+				int add = alphabetcount.get(alpha) + 1; //using index, get the value in alphabetcount's equivalent and increment 
+				alphabetcount.set(alpha, add); //set incremented count in index
+				
+			}
+			
+		}
+	}
+	public void print(int iterations) {//print out the probabilities
+		if(iterations <= 0)
+			return; 
+		for(int j = 0; j < alphabetcount.size(); j++) {
+			probability = (float)alphabetcount.get(j)/(tokenArray.size()*iterations); //index through to get all probabilities
+			System.out.println(alphabet.get(j) + " | Probability:" + probability);
+			probabilitydistru.add(probability);
+		}
+	}
+	void generate() {
+		//clear the generated array if full already
+		genarray.clear();
+		//for every note, find the generated token
+		for(int i = 0; i < tokenArray.size(); i++) {
+			genarray.add(generateToken());
+		}
+	}
+	public T generateToken() {//determine the generated token based off of probability distribution
+		float randIndex = (float)Math.random();
+		boolean found = false;
+		int index = 0;
+		float total = 0;
+		
+		while(!found && index < alphabetcount.size()) {
+			total += probabilitydistru.get(index);
+			found = randIndex <= total;
+			index++;
+		}
+		if(found) return alphabet.get(index-1);
+		else return alphabet.get(alphabet.size()-1);
+	}
+}

@@ -1,0 +1,128 @@
+/*import java.util.ArrayList;
+import java.util.List;
+
+public class MarkovOrder<T> extends MarkovGenerator<T> {
+	int orderM;
+	ArrayList<ArrayList<T>> uniqueSequence = new ArrayList<ArrayList<T>>();
+	ArrayList<T> container = new ArrayList<T>();
+	ArrayList<Integer> getRow = new ArrayList<Integer>();
+	ArrayList<Float> newProbability = new ArrayList<Float>();
+	MarkovGenerator<T> markG = new MarkovGenerator<T>(); 
+	ProbabilityGenerator<T>probG=new ProbabilityGenerator<T>();
+	
+	MarkovOrder(){
+		super();
+		orderM=2;
+	}
+	MarkovOrder(int M){
+		super();
+		orderM=M;
+		
+	}
+	public void train(ArrayList<T> newTokens) {
+
+		for (int i = orderM - 1; i < newTokens.size() - 1; i++) {
+			int tokenIn = alphabet.indexOf(newTokens.get(i+1));
+			int RowIndex = uniqueSequence.indexOf(container);
+
+			container = new ArrayList<T>(newTokens.subList(i - (orderM - 1), i - (orderM - 1) + orderM));
+			if (RowIndex == -1) {
+				RowIndex = uniqueSequence.size();
+				uniqueSequence.add(container);
+				ArrayList<Integer> nRow = new ArrayList<Integer>();// include expand
+				for (int y = 0; y < alphabet.size(); y++) {
+					nRow.add(0);
+				}
+				transitionTable.add(nRow);
+			}
+
+			tokenIn = alphabet.indexOf(newTokens.get(i + 1));
+			
+			if (tokenIn == -1) {
+				tokenIn = alphabet.size();
+				alphabet.add(newTokens.get(i + 1));
+				alphabet.add(newTokens.get(i+1));
+				for (int j = 0; j < transitionTable.size(); j++) {// include expand
+					transitionTable.get(j).add(0);
+				}
+			}
+		
+			if (RowIndex != -1) {
+				ArrayList<Integer>getRow = transitionTable.get(RowIndex);
+				getRow.set(tokenIn, getRow.get(tokenIn) + 1);
+				
+			}
+			print();
+		}
+
+	}
+	
+
+	public void print() {
+		for(int i = 0; i < transitionTable.size(); i++) {
+			prob(transitionTable.get(i), i);
+			System.out.println(alphabet.get(i));
+			System.out.println(newProbability);
+		}
+	}
+
+	public void prob(ArrayList<Integer> transitionTable, int index) {
+		float total = 0;		
+		for(int i = 0; i < transitionTable.size(); i++) {
+			total = (float) transitionTable.get(i) + total; 			
+		}
+		if(total == 0) {
+			
+			for(int i = 0; i < transitionTable.size(); i++) {
+				newProbability.set(i, (float) 0);	
+			}
+		}
+		else {
+			newProbability.clear();
+			for(int j = 0; j < transitionTable.size(); j++) {
+				newProbability.add(((float) transitionTable.get(j) / total)); 				
+			}
+		}
+
+	}
+	
+	T generate(ArrayList<T> initSeq ) {
+		T newTokens=null;
+		int curIn = uniqueSequence.indexOf(initSeq);
+		if(curIn==-1) {
+			
+			newTokens =  markG.generate(initSeq.get(initSeq.size() - 1));
+		}
+		if(curIn!=-1) {
+			for(int i = 0; i < alphabet_counts.size(); i++){ 
+				sum = sum + alphabet_counts.get(i);
+			}
+			
+			
+			if (sum == 0) {
+				return probG.generate(); 
+			}
+			else {
+				return super.generate(); 
+			}
+			
+		}
+		return newTokens;
+	}
+	ArrayList<T> generate(ArrayList<T> initSeq,int numTokensToGen) {
+		ArrayList<T>output = new ArrayList<T>();
+		T token;
+		for(int i=0;i<=numTokensToGen;i++) {
+			token = generate(initSeq);
+			initSeq.remove(0);		
+			initSeq.add(token);					
+			output.add(token);
+			initSeq.remove(initSeq.size()-1);
+		
+						
+			
+		}
+		return output;
+	}
+
+}*/

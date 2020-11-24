@@ -1,0 +1,245 @@
+
+//Adam Wu 
+import processing.core.*;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import java.util.*;
+import oscP5.*;
+import netP5.*;
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.JMC;
+import jm.util.*;
+import jm.midi.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+
+//make sure this class name matches your file name, if not fix.
+public class HelloWorldMidiMain extends PApplet {
+
+	MelodyPlayer player; // play a midi sequence
+	MidiFileToNotes midiNotes; // read a midi file
+
+	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
+	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
+	MarkovG<Integer> p2 = new MarkovG<Integer>();
+	MarkovG<Double> r2 = new MarkovG<Double>();
+	MarkovOrder<Integer> p3 = new MarkovOrder<Integer>();
+	MarkovOrder<Double> r3 = new MarkovOrder<Double>();
+	Tree<String> t1 = new Tree<String>();
+	Tree<Integer> pt = new Tree<Integer>();// pitch
+	Tree<Double> rt = new Tree<Double>();// for ryhthem
+	boolean play = false;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		PApplet.main("HelloWorldMidiMain"); // change this to match above class & file name
+
+	}
+
+	float insenity = 0;
+	int line = 1000;
+
+	// setting the window size to 300x300
+	public void settings() {
+		size(600, 600);
+
+	}
+
+	// doing all the setup stuff
+	public void setup() {
+		
+		fill(120, 50, 240);
+		colorMode(HSB, 360, 100, 100);
+		// returns a url
+		String filePath = getPath("mid/MaryHadALittleLamb.mid");
+		// playMidiFile(filePath);
+
+		midiNotes = new MidiFileToNotes(filePath);
+//		// which line to read in --> this object only reads one line (or ie, voice or ie, one instrument)'s worth of data from the file
+		midiNotes.setWhichLine(0);
+
+		player = new MelodyPlayer(this, 100.0f);
+		player.setup();
+		player.setMelody(midiNotes.getPitchArray()); // instead of setting Melody, send it to ProbabilityGen?
+		player.setRhythm(midiNotes.getRhythmArray());
+
+	}
+
+	public void draw() {
+		
+		XiaoQiu[] xqs = new XiaoQiu[2000];
+
+		for (int i = 0; i < xqs.length; i++) {
+			xqs[i] = new XiaoQiu(new PVector(random(0, width), random(0, height)), random(5, 10));
+		}
+		float toumingdu;
+
+		/*
+		 * color(random(0,255)); float ax = 300 ; float ay= 300; for( int
+		 * i=0;i<1000;i++){ float bx = ax +random(-insenity,insenity); float by = ay+
+		 * random(-insenity,insenity); line(ax,ay,bx,by); ax=bx; ay=by; }
+		 */
+		toumingdu = map(mouseX, 0, width, 255, 0);
+		 toumingdu = map(mouseX,0,width,255,0);
+		noStroke();
+		fill(0, toumingdu);
+		rect(0, 0, width, height);
+		for (int i = 0; i < xqs.length; i++) {
+			xqs[i].update();
+			xqs[i].display();
+			xqs[i].check();
+		}
+		
+	}
+
+	public void setAmp(float amp) {
+		insenity = amp * 10;
+	}
+
+	// this finds the absolute path of a file
+	String getPath(String path) {
+
+		String filePath = "";
+		try {
+			filePath = URLDecoder.decode(getClass().getResource(path).getPath(), "UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return filePath;
+	}
+
+	void playMidiFile(String filename) {
+		Score theScore = new Score("Temporary score");
+		Read.midi(theScore, filename);
+		Play.midi(theScore);
+	}
+
+	public void mouseClicked() {
+
+	}
+
+	// Unit Test One
+	public void UnitTest() {// unit test for tree
+		String[] abracadabra = { "a", "b", "r", "a", "c", "a", "d", "a", "b", "r", "a" };
+		ArrayList<String> tree1 = new ArrayList<String>(Arrays.asList(abracadabra));
+		t1.setTokens(tree1);
+		t1.train();
+		System.out.println(String.format("abracadabra:  PST L=%d Pmin=%.2f R=1.5", t1.L, t1.pMin));
+		t1.print();
+		t1.clearT();
+		String[] acadaacbda = { "a", "c", "a", "d", "a", "a", "c", "b", "d", "a" };
+		ArrayList<String> tree2 = new ArrayList<String>(Arrays.asList(acadaacbda));
+		t1.setTokens(tree2);
+		t1.train();
+		System.out.println("-----------------");
+		System.out.println(String.format("acadaacbda:  PST L=%d Pmin=%.2f R=1.5", t1.L, t1.pMin));
+		t1.print();
+		t1.clearT();
+		String[] abcccdaadcdaabcadad = { "a", "b", "c", "c", "c", "d", "a", "a", "d", "c", "d", "a", "a", "b", "c", "a",
+				"d", "a", "d" };
+		ArrayList<String> tree3 = new ArrayList<String>(Arrays.asList(abcccdaadcdaabcadad));
+		t1.setTokens(tree3);
+		t1.train();
+		System.out.println(String.format("abcccdaadcdaabcadad:  PST L=%d Pmin=%.2f R=1.5", t1.L, t1.pMin));
+
+		t1.print();
+		pt.setTokens(midiNotes.getPitchArray());
+		pt.train();
+		System.out.println("----------------------------");
+		// System.out.println(": PST L=3 Pmin=0.1 R=1.5");
+		System.out.println(String.format("MaryHadALittleLamb:  PST L=%d Pmin=%.2f R=%d", t1.L, t1.pMin, t1.r));
+		System.out.println("----------------------------");
+		// System.out.println("PitchTree: ");
+		pt.print();
+
+		// System.out.println("RhythmTree: ");
+		// rt.train();
+		// rt.print();
+
+	}
+
+	class XiaoQiu {
+		PVector loc;
+		float vx = 0, vy = 0;
+		float r;
+		float baocunr;
+		float angle;
+		float cx, cy, c;
+		boolean bianxiao = true;
+
+		XiaoQiu(PVector location, float r) {
+
+			loc = location;
+			this.r = r;
+			baocunr = r;
+
+			cx = map(loc.x, 0, 600, 0, 180);
+			cy = map(loc.y, 0, 600, 0, 180);
+			c = cx + cy;
+
+		}
+
+		void update() {
+			double p = 0.001;
+
+			angle += 0.02 * noise((float) 0.001 * loc.x, (float) 0.001 * loc.y);
+			vx = (float) (2 * Math.sin(angle));
+			vy = 2 * (float) Math.cos(angle);
+			loc.x += vx;
+			loc.y += vy;
+			if (bianxiao)
+				r -= 0.3;
+			if (r <= 0)
+				bianxiao = false;
+			if (!bianxiao)
+				r += 0.3;
+			if (r >= baocunr)
+				bianxiao = true;
+			c += 5;
+
+		}
+
+		void display() {
+			noStroke();
+			color(c % 360, 100, 100);
+			ellipse(loc.x, loc.y, r, r);
+
+		}
+
+		void check() {
+
+			if (loc.x < 0)
+				loc.x = 600;
+			if (loc.x > 600)
+				loc.x = 0;
+			if (loc.y < 0)
+				loc.y = 600;
+			if (loc.y > 600)
+				loc.y = 0;
+		}
+	}
+
+	public void keyPressed() {
+		if (key == ' ') {
+			player.reset();
+			println("Melody started!");
+		}
+		if (key == '1') {
+			UnitTest();
+		}
+
+		if (key == 'P') {
+			if (play == false) {
+				play = true;
+			} else {
+				play = false;
+			}
+		}
+
+	}
+
+}

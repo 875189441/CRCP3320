@@ -1,0 +1,136 @@
+import java.util.ArrayList;
+
+public class MarkovGenerator<T> extends ProbabilityGenerator<T> {
+	int tokenIn = 0;
+	int lastIndex = -1;
+	float x = 0;
+	ArrayList<ArrayList<Integer>> transitionTable = new ArrayList<ArrayList<Integer>>();
+
+	ArrayList<Float> markovProbability = new ArrayList<Float>();
+
+	float probability;
+
+	MarkovGenerator() {
+		super();
+
+	}
+
+	/*
+	 * lastIndex = -1 for each token in the input array { tokenIndex = the index of
+	 * the token in the alphabet if the current token is not found in the alphabet {
+	 * 1. tokenIndex = size of alphabet
+	 * 
+	 * 2. add a new row to the transition table (expand vertically) That is, create
+	 * a new array that is the size of the alphabet Then add to your transition
+	 * table (the array of arrays)
+	 * 
+	 * 3. add a new column (expand horizontally) That is, add a 0 on to all of the
+	 * arrays in the transition table. That is, for each array in the transition
+	 * table add 0.
+	 * 
+	 * 4. add the token to the alphabet array }
+	 * 
+	 * //ok, now add the counts to the transition table if(lastIndex > -1) //that
+	 * is, we have a previous token so its not the 1st time thru { 1. Use lastIndex
+	 * to get the correct row (array) in your transition table. 2. Use the
+	 * tokenIndex to index the correct column (value of the row you accessed) 3. Add
+	 * 1 to that value.
+	 * 
+	 * } lastIndex = tokenIndex; //setting current to previous for next round }
+	 */
+	public void train(ArrayList<T> newTokens) {
+
+		int tokenIn = 0;
+		int lastIndex = -1;
+		for (int i = 0; i < newTokens.size(); i++) {
+			tokenIn = alphabet.indexOf(newTokens.get(i));
+			if (tokenIn == -1) {
+				tokenIn = alphabet.size();
+				ArrayList<Integer> myRow = new ArrayList<Integer>();
+				transitionTable.add(myRow);
+				for (int j = 0; j < alphabet.size(); j++) {
+					myRow.add(0);
+				}
+				for (int h = 0; h < transitionTable.size(); h++) {
+					transitionTable.get(h).add(0);
+				}
+				alphabet.add(newTokens.get(i));
+
+			}
+
+			if (lastIndex > -1) {
+				ArrayList<Integer> myRow = new ArrayList<Integer>();
+				myRow = transitionTable.get(lastIndex);
+				myRow.set(tokenIn, myRow.get(tokenIn) + 1);
+
+			}
+			lastIndex = tokenIn;
+		}
+		print();
+	}
+
+	
+	
+	public void print() {
+		for(int i = 0; i < transitionTable.size(); i++) {
+			prob(transitionTable.get(i), i);
+			System.out.print(alphabet.get(i));
+			System.out.printf("%0.4f",markovProbability);
+		}
+	}
+	public void prob(ArrayList<Integer> myRow, int index) {
+		float total = 0;		
+		for(int i = 0; i < myRow.size(); i++) {
+			total = (float) myRow.get(i) + total; 			
+		}
+		if(total == 0) {
+			index=-1;
+			for(int i = 0; i < myRow.size(); i++) {
+				markovProbability.set(i, (float) 0);	
+			}
+		}
+		else {
+			markovProbability.clear();
+			for(int j = 0; j < myRow.size(); j++) {
+				markovProbability.add(((float) myRow.get(j) / total)); 				
+			}
+		}
+
+	}
+	
+	public void unitTest1() {
+		print();
+	}
+
+	T generateToken(int i) {
+
+		T newToken = null;
+		float randIndex = (float) Math.random();
+		boolean found = false;
+		int index = 0;
+		float total = 0;
+		while (!found && index < alphabet.size()) {
+			total += transitionTable.get(i).get(index);
+			found = randIndex <= total;
+			index++;
+		}
+		if (found)
+			newToken = alphabet.get(index - 1);
+		else {
+			newToken = alphabet.get(alphabet.size() - 1);
+
+		}
+		return newToken;
+
+	}
+
+	ArrayList<T> generate(T initToken, int n) {
+		ArrayList<T> newSequence = new ArrayList<T>();
+
+		for (int i = 0; i < n; i++) {
+			newSequence.add(generate());
+		}
+		return newSequence;
+
+	}
+}

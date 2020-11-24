@@ -1,0 +1,28 @@
+import java.util.ArrayList;
+public class Tree<T> extends ProbabilityGenerator<T> {
+	
+	Node<T> root = new Node<T>();
+	int L = 3;
+	double pMin = 0.1;
+	
+	
+public void train() {//k j  jp
+	for(int i = 1; i <= L; i++){
+		for(int j = 0; j <= newTokens.size() - i; j++) {
+			ArrayList<T> curSequence = new ArrayList<T>();
+			for(int p = 0; j < i; j++) {
+				curSequence.add(newTokens.get(j+p));
+				}
+				Node<T> newNode = new Node<T>(curSequence);
+				root.addNode(newNode);	
+			}
+		}
+	
+	
+}
+
+public void print() {
+		root.print();
+}
+
+}

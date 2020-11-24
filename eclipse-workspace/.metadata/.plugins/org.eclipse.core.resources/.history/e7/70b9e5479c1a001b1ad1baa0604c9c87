@@ -1,0 +1,175 @@
+import processing.core.*;
+
+import java.util.*; 
+
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.util.*;
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+
+//import javax.sound.midi.*;
+
+			//make sure this class name matches your file name, if not fix.
+public class HelloWorldMidiMain extends PApplet {
+
+	MelodyPlayer player; //play a midi sequence
+	MidiFileToNotes midiNotes; //read a midi file
+	ProbabilityGenerator<Integer>pitchGenerator = new ProbabilityGenerator<Integer>();
+	ProbabilityGenerator<Double>ryhthemGenerator = new ProbabilityGenerator<Double>();
+	MarkovGenerator<Integer>MpitchGenerator = new MarkovGenerator<Integer>();
+	MarkovGenerator<Double>MryhthemGenerator = new MarkovGenerator<Double>();
+	//MarkovOrder<Integer>OpitchGenerator = new MarkovOrder<Integer>();
+	//MarkovOrder<Double>OryhthemGenerator = new MarkovOrder<Double>();
+	Tree<String> t1 = new Tree<String>();
+	Tree<Integer> pt = new Tree<Integer>();
+	Tree<Double> rt = new Tree<Double>();//for ryhthem
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		PApplet.main("HelloWorldMidiMain"); //change this to match above class & file name 
+
+	}
+
+	//setting the window size to 300x300
+	public void settings() {
+		size(300, 300);
+	
+
+	}
+
+	//doing all the setup stuff
+	public void setup() {
+		fill(120, 50, 240);
+ProbabilityGenerator<Integer>pitchGenerator = new ProbabilityGenerator<Integer>();
+ProbabilityGenerator<Double>ryhthemGenerator = new ProbabilityGenerator<Double>();
+MarkovGenerator<Integer>MpitchGenerator = new MarkovGenerator<Integer>();
+MarkovGenerator<Double>MryhthemGenerator = new MarkovGenerator<Double>();
+//MarkovOrder<Integer>OpitchGenerator = new MarkovOrder<Integer>();
+//MarkovOrder<Double>OryhthemGenerator = new MarkovOrder<Double>();
+		// returns a url
+		String filePath = getPath("mid/MaryHadALittleLamb.mid");
+		// playMidiFile(filePath);
+
+		midiNotes = new MidiFileToNotes(filePath); //creates a new MidiFileToNotes -- reminder -- ALL objects in Java must 
+													//be created with "new". Note how every object is a pointer or reference. Every. single. one.
+
+
+//		// which line to read in --> this object only reads one line (or ie, voice or ie, one instrument)'s worth of data from the file
+		midiNotes.setWhichLine(0);
+		
+		pitchGenerator.train(midiNotes.getPitchArray());
+		ryhthemGenerator.train(midiNotes.getRhythmArray());
+		MpitchGenerator.train(midiNotes.getPitchArray());
+		MryhthemGenerator.train(midiNotes.getRhythmArray());
+		//OpitchGenerator.train(midiNotes.getPitchArray());;
+		//OryhthemGenerator.train(midiNotes.getRhythmArray());
+		
+		player = new MelodyPlayer(this, 100.0f);
+
+		player.setup();
+		player.setMelody(MpitchGenerator.generate(20));
+		player.setRhythm(MryhthemGenerator.generate(20));
+	}
+
+	public void draw() {
+		
+		player.play(); //play each note in the sequence -- the player will determine whether is time for a note onset
+		
+		
+	}
+
+	//this finds the absolute path of a file
+	String getPath(String path) {
+
+		String filePath = "";
+		try {
+			filePath = URLDecoder.decode(getClass().getResource(path).getPath(), "UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return filePath;
+	}
+
+	//this function is not currently called. you may call this from setup() if you want to test
+	//this just plays the midi file -- all of it via your software synth. You will not use this function in upcoming projects
+	//but it could be a good debug tool.
+	void playMidiFile(String filename) {
+		Score theScore = new Score("Temporary score");
+		Read.midi(theScore, filename);
+		Play.midi(theScore);
+	}
+	/*public void UnitTest() {//unit test for tree 
+		String[] abracadabra = {"a", "b", "r", "a", "c", "a", "d", "a", "b", "r", "a"};
+		ArrayList<String> tree1 = new ArrayList<String>(Arrays.asList(abracadabra));
+		t1.setTokens(tree1);
+		t1.train();
+		System.out.println("Tree1:");
+		t1.print();
+		t1.clearT();
+		String[] acadaacbda = {"a", "c", "a", "d", "a", "a", "c", "b", "d", "a"};
+		ArrayList<String> tree2 = new ArrayList<String>(Arrays.asList(acadaacbda));
+		t1.setTokens(tree2);
+		t1.train();
+		System.out.println("Tree2: ");
+		t1.print();
+		t1.clearT();
+		String[] abcccdaadcdaabcadad = {"a", "b", "c", "c", "c", "d", "a", "a", "d", "c", "d", "a", "a", "b", "c", "a", "d", "a", "d"};
+		ArrayList<String> tree3 = new ArrayList<String>(Arrays.asList(abcccdaadcdaabcadad));
+		t1.setTokens(tree3);
+		t1.train();
+		System.out.println("Tree3: ");
+		t1.print();		
+		pt.setTokens(midiNotes.getPitchArray());		
+		pt.train();
+		System.out.println("PitchTree: ");
+		pt.print();
+		System.out.println("RhythmTree: ");
+
+	
+	}*/
+	public void unitTestThree() {
+		int numIterations = 1000;
+		for(int i = 0; i < numIterations; i++) {
+					
+				Integer ptoken = pitchGenerator.generate();
+				Double rtoken = ryhthemGenerator.generate();
+				MpitchGenerator.generate(ptoken);
+				MpitchGenerator.setTokens(MpitchGenerator.getGenArray());
+				MpitchGenerator.train();
+				MryhthemGenerator.generate(rtoken);
+				MryhthemGenerator.setTokens(MryhthemGenerator.getGenArray());
+				MryhthemGenerator.train();	
+			
+		}}
+
+	public void keyPressed() {
+		int numIterations = 1000;
+		if (key == ' ') {
+			player.reset();
+			println("Melody started!");
+		}
+		if (key == '1') {
+			MpitchGenerator.normalize();
+			MryhthemGenerator.normalize();
+			System.out.println("Pitches Transition Table after "+ numIterations +" iterations:");
+			MpitchGenerator.print();
+			System.out.println("------------------------------");
+			System.out.println("Rhythm Transition Table after "+ numIterations +" iterations:");
+			MryhthemGenerator.print();
+			System.out.println("------------------------------");
+		}		
+	
+			}
+
+		
+			
+		
+		
+		
+	
+			
+	
+
+}

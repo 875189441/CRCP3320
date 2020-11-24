@@ -1,0 +1,192 @@
+//Adam Wu 
+
+import processing.core.*;
+import java.util.*;
+
+//importing the JMusic stuff
+import jm.music.data.*;
+import jm.JMC;
+import jm.util.*;
+import jm.midi.*;
+
+import java.io.UnsupportedEncodingException;
+import java.net.*;
+
+//make sure this class name matches your file name, if not fix.
+public class HelloWorldMidiMain extends PApplet {
+
+	MelodyPlayer player; // play a midi sequence
+	MidiFileToNotes midiNotes; // read a midi file
+
+	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
+	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
+	MarkovG<Integer> p2 = new MarkovG<Integer>();
+	MarkovG<Double> r2 = new MarkovG<Double>();
+	boolean play = false;
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		PApplet.main("HelloWorldMidiMain"); // change this to match above class & file name
+
+	}
+
+	// setting the window size to 300x300
+	public void settings() {
+		size(600, 600);
+
+	}
+	XiaoQiu[] xqs = new XiaoQiu[2000];
+	float toumingdu;
+	// doing all the setup stuff
+	public void setup() {
+		fill(120, 50, 240);
+
+		// returns a url
+		String filePath = getPath("mid/MaryHadALittleLamb.mid");
+		// playMidiFile(filePath);
+
+		midiNotes = new MidiFileToNotes(filePath);
+//		// which line to read in --> this object only reads one line (or ie, voice or ie, one instrument)'s worth of data from the file
+		midiNotes.setWhichLine(0);
+
+		player = new MelodyPlayer(this, 100.0f);
+		player.setup();
+		player.setMelody(midiNotes.getPitchArray()); // instead of setting Melody, send it to ProbabilityGen?
+		player.setRhythm(midiNotes.getRhythmArray());
+		
+		  colorMode(HSB,360,100,100);
+		  for(int i=0;i<xqs.length;i++) {
+		    xqs[i] = new XiaoQiu(new PVector( random(0,width),random(0,height)),random(5,10));}
+
+	}
+
+	
+	
+
+	public void draw(){
+	  toumingdu = map(mouseX,0,width,255,0);
+	  noStroke();
+	  fill(0,toumingdu);
+	  rect(0,0,width,height);
+	  for(int i=0;i<xqs.length;i++) {
+	    xqs[i].update();
+	    xqs[i].display();
+	    xqs[i].check();
+	  }
+	}
+
+	class XiaoQiu
+	{
+	  PVector loc;
+	  float vx=0, vy=0;
+	  float r;
+	  float baocunr;
+	  float angle=0;
+	  float cx,cy,c;
+	  boolean bianxiao =true;
+	  
+	 XiaoQiu(PVector location, float r) 
+	 {
+	   loc =location;
+	   this.r =r ;
+	   baocunr = r ;
+	   cx =map(loc.x,0,width,0,180);
+	   cy =map(loc.y,0,height,0,180);
+	   c=cx+cy;
+	 
+	}
+	void update(){
+	  angle += 0.02*noise((float)0.001*loc.x,(float)0.001*loc.y);
+	  vx = (float) (2 * Math.sin(angle));
+	      vy = (float)(2 * Math.cos(angle));
+	  loc.x+=vx;
+	  loc.y+=vy;
+	  if(bianxiao) r -=0.3;
+	  if(r<=0) bianxiao=false;
+	  if(!bianxiao) r+=0.3;
+	  if(r>=baocunr) bianxiao = true;
+	  c+=5;
+	  
+	}
+	void display(){
+	  noStroke();
+	  fill(c%360,100,100);
+	  ellipse(loc.x,loc.y,r,r);
+	  
+	}
+	void check(){
+	  
+	  if(loc.x<0) loc.x=width;
+	  if(loc.x>width) loc.x=0;
+	  if(loc.y<0) loc.y=height;
+	  if(loc.y>height) loc.y=0;
+	}
+	}
+
+	// this finds the absolute path of a file
+	String getPath(String path) {
+
+		String filePath = "";
+		try {
+			filePath = URLDecoder.decode(getClass().getResource(path).getPath(), "UTF-8");
+
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return filePath;
+	}
+
+	void playMidiFile(String filename) {
+		Score theScore = new Score("Temporary score");
+		Read.midi(theScore, filename);
+		Play.midi(theScore);
+	}
+
+	public void mouseClicked() {
+
+	}
+
+	// Unit Test One
+	public void unitTest1() {
+
+		
+	}
+
+//Unit Test Two
+	public void unitTest2() {
+
+		
+	}
+
+//Unit Test three 
+	public void unitTest3() {
+
+		
+	}
+
+	public void keyPressed() {
+		if (key == ' ') {
+			player.reset();
+			println("Melody started!");
+		}
+		if (key == '1') {
+			unitTest1();
+		}
+		if (key == '2') {
+			unitTest2();
+		}
+		if (key == '3') {
+			unitTest3();
+		}
+		if (key == 'P') {
+			if (play == false) {
+				play = true;
+			} else {
+				play = false;
+			}
+		}
+
+	}
+
+}

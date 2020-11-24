@@ -1,0 +1,184 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class MarkovOrder<T> extends MarkovGenerator<T> {
+	int orderM;
+	ArrayList<ArrayList<T>> uniqueSequence = new ArrayList<ArrayList<T>>();
+	ArrayList<T> container = new ArrayList<T>();
+	ArrayList<Integer> getRow = new ArrayList<Integer>();
+	ArrayList<Float> newProbability = new ArrayList<Float>();
+	/*
+	 * for i = orderM -1 to (i < size of the input - 1) do {
+	 * 
+	 * 1. Create the current sequence (eg. curSequence) of size orderM from the
+	 * input Remember to start the index into the input at 0 (with this algorithm)
+	 * a. add the previous tokens to a container (eg ArrayList). b. You may do this
+	 * in a for-loop or use .subList() i.
+	 * https://beginnersbook.com/2013/12/how-to-get-sublist-of-an-arraylist-with-
+	 * example/
+	 * 
+	 * 2. Find curSequence in uniqueAlphabetSequences if curSequence is not found {
+	 * 1. set rowIndex to the size of uniqueAlphabetSequences
+	 * 
+	 * 2. add the curSequence to uniqueAlphabetSequences
+	 * 
+	 * 3. add a new row to the transition table the size of the alphabet }
+	 * 
+	 * 3. Find the current next token (tokenIndex) { tokenIndex = the next index of
+	 * the token in the alphabet (i+1)
+	 * 
+	 * if tokenIndex is not found in the alphabet { 1. tokenIndex = size of the
+	 * alphabet 2. add the token to the alphabet 3. expand transitionTable
+	 * horizontally } }
+	 * 
+	 * 4. Update the counts – since we started after the beginning, rowIndex will
+	 * not be -1 a. Get the row using rowIndex b. Get the column using tokenIndex c.
+	 * Add one to that value retrieved from the transition table }
+	 */
+	MarkovOrder(){
+		super();
+		orderM=10;
+		
+	}
+	public void train(ArrayList<T> newTokens) {
+
+		for (int i = orderM - 1; i < newTokens.size() - 1; i++) {
+			int tokenIn = alphabet.indexOf(newTokens.get(i+1));
+			int RowIndex = uniqueSequence.indexOf(container);
+
+			container = new ArrayList<T>(newTokens.subList(i - (orderM - 1), i - (orderM - 1) + orderM));
+			if (RowIndex == -1) {
+				RowIndex = uniqueSequence.size();
+				uniqueSequence.add(container);
+				ArrayList<Integer> nRow = new ArrayList<Integer>();// include expand
+				for (int y = 0; y < alphabet.size(); y++) {
+					nRow.add(0);
+				}
+				transitionTable.add(nRow);
+			}
+
+			tokenIn = alphabet.indexOf(newTokens.get(i + 1));
+
+			if (tokenIn == -1) {
+				tokenIn = alphabet.size();
+				alphabet.add(newTokens.get(i + 1));
+				alphabet.add(newTokens.get(i+1));
+				for (int j = 0; j < transitionTable.size(); j++) {// include expand
+					transitionTable.get(j).add(0);
+				}
+			}
+
+			if (RowIndex != -1) {
+				ArrayList<Integer>getRow = transitionTable.get(RowIndex);
+				getRow.set(tokenIn, getRow.get(tokenIn) + 1);
+
+			}
+		print();
+		}
+		
+	}
+	
+
+	public void print() {
+System.out.println(alphabet); //printing out what is in alphabet(i.e the tokens)
+		
+		for(int i = 0; i < uniqueSequence.size(); i++) { //for each row in uniqueAlphabetSequence
+			System.out.print(uniqueSequence.get(i));
+			
+			for(int j = 0; j < transitionTable.get(i).size(); j++) { //print each element in the row
+				
+				for(int k = 0; k < transitionTable.get(i).size(); k++) { //find sum of the row to divide element by 
+					sum = sum + transitionTable.get(i).get(k);
+				}
+				
+				if (sum == 0) //for rows that have nothing (i.e. 0)
+					sum = 1;
+				
+				System.out.print(" " + transitionTable.get(i).get(j) / sum); //print out element divided by sum
+				sum = 0; //reset sum for other rows
+			}
+			System.out.println("\n");
+		}
+	}
+	
+
+	public void prob(ArrayList<Integer> transitionTable, int index) {
+		float total = 0;		
+		for(int i = 0; i < transitionTable.size(); i++) {
+			total = (float) transitionTable.get(i) + total; 			
+		}
+		if(total == 0) {
+			
+			for(int i = 0; i < transitionTable.size(); i++) {
+				newProbability.set(i, (float) 0);	
+			}
+		}
+		else {
+			newProbability.clear();
+			for(int j = 0; j < transitionTable.size(); j++) {
+				newProbability.add(((float) transitionTable.get(j) / total)); 				
+			}
+		}
+
+	}
+	/*
+	T generate(ArrayList initSeq)
+	{	
+		curSeqIndex  = find the index of initSeq in uniqueAlphabetSequence 
+		if(initSeq is not found)
+		{
+			1. generate from a trained markov chain 1
+			//note – there are other solutions, you could generate from prob. dist. instead.
+			//you could rollback your generation one character & generate again
+
+			//whatever you choose will affect your transition tables in Unit 3 – note that only the sequences 
+			// found in training will have the reported probabilities for each row. Eg. you will see "discrepancies"
+			//in the rhythms, as the symbol 4.0 comes after things but nothing comes after it.
+		}
+		else
+		{
+			1. find the row in the transition table using curSeqIndex  
+			2. generate from that row using your Probability Generator 
+			//note: remember to handle 0% probability across all tokens
+		}
+
+	ArrayList generate(ArrayList initSeq, int numTokensToGen)
+	{
+		1.	create an ArrayList of T - outputMelody
+		2.	for 1 to numTokensToGen do 
+		{
+			1.	call your single generate using your initSeq
+			2.	remove the first token you added from your initSeq
+			3.	add the generated token to your initSeq
+			4.	add the generated token to outputMelody
+			5.	remove the first token off the top of the initSeq
+		}
+	}*/
+	T generate(ArrayList initSeq) {
+		T newTokens=null;
+		int curIn = uniqueSequence.indexOf(initSeq);
+		if(curIn==-1) {
+			//MarkovGenerator.generate();
+			
+		}
+		if(curIn!=-1) {
+			ArrayList<Integer>findRow = new ArrayList<Integer>();
+			findRow= transitionTable.get(curIn);//find row
+			//ProbabilityGenerator.generate();
+			
+		}
+		return newTokens;
+	}
+	ArrayList generate(ArrayList initSeq,int numTokensToGen) {
+		ArrayList<T>outputMelody = new ArrayList();
+		for(int i=0;i<=numTokensToGen;i++) {
+			initSeq.remove(0);
+			initSeq.add(generate(initSeq));
+			outputMelody.add(generate(initSeq));
+			initSeq.remove(1);
+			
+		}
+		return initSeq;
+	}
+
+}
