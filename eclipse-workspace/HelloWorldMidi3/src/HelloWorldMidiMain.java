@@ -114,21 +114,19 @@ p3.train(midiNotes.getPitchArray());
 			println("Melody started!");
 		}
 		if (key == '1') {
-			unitTest1();
+			System.out.println("------Pitches Probability:-------");
+			p3.train(midiNotes.getPitchArray());
+			p3.print(midiNotes.getPitchArray());
+			System.out.println("-------------------------------------------------");
+			System.out.println("------Ryhthm Probability:-------");
+			r3.train(midiNotes.getRhythmArray());
+			r3.print(midiNotes.getRhythmArray());
+			System.out.println("-------------------------------------------------");
 		}
-		if (key == '2') {
-			unitTest2();
+		if(key=='2') {
+			
 		}
-		if (key == '3') {
-			unitTest3();
-		}
-		if (key == 'P') {
-			if (play == false) {
-				play = true;
-			} else {
-				play = false;
-			}
-		}
+		
 
 	}
 

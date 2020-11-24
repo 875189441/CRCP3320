@@ -32,11 +32,10 @@ public class HelloWorldMidiMain extends PApplet {
 
 	// setting the window size to 300x300
 	public void settings() {
-		size(600, 600);
+		size(300, 300);
 
 	}
-	XiaoQiu[] xqs = new XiaoQiu[2000];
-	float toumingdu;
+
 	// doing all the setup stuff
 	public void setup() {
 		fill(120, 50, 240);
@@ -53,74 +52,14 @@ public class HelloWorldMidiMain extends PApplet {
 		player.setup();
 		player.setMelody(midiNotes.getPitchArray()); // instead of setting Melody, send it to ProbabilityGen?
 		player.setRhythm(midiNotes.getRhythmArray());
-		
-		  colorMode(HSB,360,100,100);
-		  for(int i=0;i<xqs.length;i++) {
-		    xqs[i] = new XiaoQiu(new PVector( random(0,width),random(0,height)),random(5,10));}
 
 	}
 
-	
-	
+	public void draw() {
+		text("Press 1,2,3 for Unit Test 1,2,3", 40, 100);
+		player.play(); // play each note in the sequence -- the player will determine whether is time
+						// for a note onset
 
-	public void draw(){
-	  toumingdu = map(mouseX,0,width,255,0);
-	  noStroke();
-	  fill(0,toumingdu);
-	  rect(0,0,width,height);
-	  for(int i=0;i<xqs.length;i++) {
-	    xqs[i].update();
-	    xqs[i].display();
-	    xqs[i].check();
-	  }
-	}
-
-	class XiaoQiu
-	{
-	  PVector loc;
-	  float vx=0, vy=0;
-	  float r;
-	  float baocunr;
-	  float angle=0;
-	  float cx,cy,c;
-	  boolean bianxiao =true;
-	  
-	 XiaoQiu(PVector location, float r) 
-	 {
-	   loc =location;
-	   this.r =r ;
-	   baocunr = r ;
-	   cx =map(loc.x,0,width,0,180);
-	   cy =map(loc.y,0,height,0,180);
-	   c=cx+cy;
-	 
-	}
-	void update(){
-	  angle += 0.02*noise((float)0.001*loc.x,(float)0.001*loc.y);
-	  vx = (float) (2 * Math.sin(angle));
-	      vy = (float)(2 * Math.cos(angle));
-	  loc.x+=vx;
-	  loc.y+=vy;
-	  if(bianxiao) r -=0.3;
-	  if(r<=0) bianxiao=false;
-	  if(!bianxiao) r+=0.3;
-	  if(r>=baocunr) bianxiao = true;
-	  c+=5;
-	  
-	}
-	void display(){
-	  noStroke();
-	  fill(c%360,100,100);
-	  ellipse(loc.x,loc.y,r,r);
-	  
-	}
-	void check(){
-	  
-	  if(loc.x<0) loc.x=width;
-	  if(loc.x>width) loc.x=0;
-	  if(loc.y<0) loc.y=height;
-	  if(loc.y>height) loc.y=0;
-	}
 	}
 
 	// this finds the absolute path of a file
@@ -150,19 +89,53 @@ public class HelloWorldMidiMain extends PApplet {
 	// Unit Test One
 	public void unitTest1() {
 
-		
+		p2.setTokens(midiNotes.getPitchArray());
+		r2.setTokens(midiNotes.getRhythmArray());
+		System.out.println("------Pitches Transition Table:-------");
+		p2.train();
+		p2.normalize();
+		p2.print();
+		System.out.println("------------------------------");
+		System.out.println("------Rhythm Transition Table:-------");
+		r2.train();
+		r2.normalize();
+		r2.print();
+		System.out.println("------------------------------");
+
 	}
 
 //Unit Test Two
 	public void unitTest2() {
 
-		
+		p2.generate();
+		r2.generate();
+		System.out.println(p2.genarray());
+		System.out.println(r2.genarray());
+		player.setMelody(p2.genarray());
+		player.setRhythm(r2.genarray());
+
 	}
 
 //Unit Test three 
 	public void unitTest3() {
 
-		
+		for (int i = 0; i < 1000; i++) {
+			p2.generate(p2.generateToken());
+			p2.setTokens(p2.genarray());
+			p2.train();
+			r2.generate(r2.generateToken());
+			r2.setTokens(r2.genarray());
+			r2.train();
+
+		}
+		p2.normalize();
+		r2.normalize();
+		System.out.println("Pitches Transition Table ");
+		p2.print();
+		System.out.println("------------------------------");
+		System.out.println("Rhythm Transition Table ");
+		r2.print();
+		System.out.println("------------------------------");
 	}
 
 	public void keyPressed() {

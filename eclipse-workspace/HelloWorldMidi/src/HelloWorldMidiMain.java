@@ -121,6 +121,7 @@ public class HelloWorldMidiMain extends PApplet {
 //Unit Test three 
 	public void unitTest3() {
 
+
 		for (int i = 0; i < 1000; i++) {
 
 			pitchGenerator.generate();
@@ -135,6 +136,10 @@ public class HelloWorldMidiMain extends PApplet {
 		pitchGenerator.print(1000);
 		System.out.println("------Rhythm Probability:-------");
 		ryhthemGenerator.print(1000);
+
+
+
+	
 
 	}
 	public void keyPressed() {
@@ -162,4 +167,6 @@ public class HelloWorldMidiMain extends PApplet {
 	}
 
 
+
 }
+
