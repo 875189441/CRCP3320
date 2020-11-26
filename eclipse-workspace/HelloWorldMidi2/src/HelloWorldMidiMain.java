@@ -17,7 +17,7 @@ public class HelloWorldMidiMain extends PApplet {
 
 	MelodyPlayer player; // play a midi sequence
 	MidiFileToNotes midiNotes; // read a midi file
-	XiaoQiu xiao;
+
 	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
 	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
 	MarkovG<Integer> p2 = new MarkovG<Integer>();
