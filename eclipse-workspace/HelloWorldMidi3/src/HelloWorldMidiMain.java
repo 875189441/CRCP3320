@@ -1,4 +1,4 @@
-//Adam Wu 
+//Adam Wu project3
 
 import processing.core.*;
 import java.util.*;
