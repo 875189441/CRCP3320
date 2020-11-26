@@ -13,16 +13,13 @@ public class MarkovG<T> extends ProbabilityGenerator<T>{
 			if the current token is not found in the alphabet
 			{
 				  1. tokenIndex = size of alphabet
-
                                   2. add a new row to the transition table (expand vertically)
                                   That is, create a new array that is the size of the alphabet 
                                   Then add to your transition table (the array of arrays)
-
                                   3. add a new column (expand horizontally)
                                   That is, add a 0 on to all of the arrays in the transition table.
                                   That is, for each array in the transition table add 0.
 		
-
 	 */
 	//train class 
 	public void train() {
