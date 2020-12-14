@@ -98,7 +98,7 @@ public class Node<T> extends ProbabilityGenerator<T>{
 				return tIter;
 		}
 		super.generate();
-		return null;
+		return newToken;
 	}
 	public ArrayList<T> generate(ArrayList initSeq, int length)
 	{
@@ -107,10 +107,7 @@ public class Node<T> extends ProbabilityGenerator<T>{
 			retSeq.add(generate(initSeq));// for length times and return an ArrayList with the result
 		return retSeq;
 	}
-	public void generate()
-	{
-
-	}
+	
 	//***you should fill in these methods yourself, so they won’t appear below***
 	public void trainViaProbGen(Node<T> node)
 	{

@@ -6,10 +6,9 @@ public class Tree<T>extends ProbabilityGenerator<T> {
 	int L = 3;
 	double pMin = 0.15;
 	int sampleSet = 0;
-public void train(ArrayList<T> newTokens) {
+public void train() {
 	for(int i = 1; i <= L; i++){
 		for(int j = 0; j <= newTokens.size() - i; j++) {
-			boolean hasSeq = j + i == newTokens.size();
 			ArrayList<T> curSequence = new ArrayList<T>();//cursequence creat for each times
 			for(int p = 0; p < i; p++) {//get sequence
 				curSequence.add(newTokens.get(j+p));
@@ -20,7 +19,6 @@ public void train(ArrayList<T> newTokens) {
 			}
 		
 		}
-	
 	sampleSet = newTokens.size();
 	root.pMinElim(sampleSet, pMin);
 }

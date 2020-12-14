@@ -20,7 +20,13 @@ public class HelloWorldMidiMain extends PApplet {
 
 	ProbabilityGenerator<Integer> pitchGenerator = new ProbabilityGenerator<Integer>();
 	ProbabilityGenerator<Double> ryhthemGenerator = new ProbabilityGenerator<Double>();
-
+	MarkovG<Integer> p2 = new MarkovG<Integer>();
+	MarkovG<Double> r2 = new MarkovG<Double>();
+	MarkovOrder<Integer> p3 = new MarkovOrder<Integer>();
+	MarkovOrder<Double> r3 = new MarkovOrder<Double>();
+	Tree<String> t1 = new Tree<String>();
+	Tree<Integer> pt = new Tree<Integer>();//pitch
+	Tree<Double> rt = new Tree<Double>();//for ryhthem
 	boolean play = false;
 
 	public static void main(String[] args) {
@@ -43,7 +49,7 @@ public class HelloWorldMidiMain extends PApplet {
 		String filePath = getPath("mid/MaryHadALittleLamb.mid");
 		// playMidiFile(filePath);
 
-		midiNotes = new MidiFileToNotes(filePath); 
+		midiNotes = new MidiFileToNotes(filePath);
 //		// which line to read in --> this object only reads one line (or ie, voice or ie, one instrument)'s worth of data from the file
 		midiNotes.setWhichLine(0);
 
@@ -81,74 +87,50 @@ public class HelloWorldMidiMain extends PApplet {
 		Play.midi(theScore);
 	}
 
-	
-
 	public void mouseClicked() {
 
 	}
 
-	// Unit Test One 
-	public void unitTest1() {
-		ArrayList<Integer> pitchInput = midiNotes.getPitchArray();
+	// Unit Test One
+	public void UnitTest() {//unit test for tree 
+		String[] abracadabra = {"a", "b", "r", "a", "c", "a", "d", "a", "b", "r", "a"};
+		ArrayList<String> tree1 = new ArrayList<String>(Arrays.asList(abracadabra));
+		t1.setTokens(tree1);
+		t1.train();
+		System.out.println("Tree1:");
+		t1.print();
+		t1.clearT();
+		String[] acadaacbda = {"a", "c", "a", "d", "a", "a", "c", "b", "d", "a"};
+		ArrayList<String> tree2 = new ArrayList<String>(Arrays.asList(acadaacbda));
+		t1.setTokens(tree2);
+		t1.train();
+		System.out.println("Tree2: ");
+		t1.print();
+		t1.clearT();
+		String[] abcccdaadcdaabcadad = {"a", "b", "c", "c", "c", "d", "a", "a", "d", "c", "d", "a", "a", "b", "c", "a", "d", "a", "d"};
+		ArrayList<String> tree3 = new ArrayList<String>(Arrays.asList(abcccdaadcdaabcadad));
+		t1.setTokens(tree3);
+		t1.train();
+		System.out.println("Tree3: ");
+		t1.print();		
+		pt.setTokens(midiNotes.getPitchArray());		
+		pt.train();
+		System.out.println("PitchTree: ");
+		pt.print();
+		System.out.println("RhythmTree: ");
 
-		ArrayList<Double> rhythmInput = midiNotes.getRhythmArray();
-
-		pitchGenerator.setTokens(pitchInput);
-		ryhthemGenerator.setTokens(rhythmInput);
-		System.out.println("------Pitches Probability:-------");
-		pitchGenerator.train();
-		pitchGenerator.print(1);
-		System.out.println("------------------------------");
-		System.out.println("------Rhythm Probability:-------");
-		ryhthemGenerator.train();
-		ryhthemGenerator.print(1);
-		System.out.println("------------------------------");
-
-	}
-//Unit Test Two
-	public void unitTest2() {
-
-		pitchGenerator.generate();
-		ryhthemGenerator.generate();
-		System.out.println(pitchGenerator.genarray());
-		System.out.println(ryhthemGenerator.genarray());
-		player.setMelody(pitchGenerator.genarray());
-		player.setRhythm(ryhthemGenerator.genarray());
-
-	}
-//Unit Test three 
-	public void unitTest3() {
-
-		for (int i = 0; i < 1000; i++) {
-
-			pitchGenerator.generate();
-			pitchGenerator.setTokens(pitchGenerator.genarray());
-			pitchGenerator.train();
-			ryhthemGenerator.generate();
-			ryhthemGenerator.setTokens(ryhthemGenerator.genarray());
-			ryhthemGenerator.train();
-
-		}
-		System.out.println("------Pitches Probability:-------");
-		pitchGenerator.print(1000);
-		System.out.println("------Rhythm Probability:-------");
-		ryhthemGenerator.print(1000);
 
 	}
+
 	public void keyPressed() {
 		if (key == ' ') {
 			player.reset();
 			println("Melody started!");
 		}
 		if (key == '1') {
-			unitTest1();
+			UnitTest();
 		}
-		if (key == '2') {
-			unitTest2();
-		}
-		if (key == '3') {
-			unitTest3();
-		}
+		
 		if (key == 'P') {
 			if (play == false) {
 				play = true;
@@ -158,6 +140,5 @@ public class HelloWorldMidiMain extends PApplet {
 		}
 
 	}
-
 
 }

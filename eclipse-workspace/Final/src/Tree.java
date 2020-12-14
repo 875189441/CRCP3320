@@ -11,27 +11,23 @@ public class Tree<T> extends ProbabilityGenerator<T> {
 	Tree()
 	{
 		pMin = 0.15;
-		r = 2;
+		r = 1;
 		totalInputTokens = 1;
 	}
 	public void train() {
 		for(int i = 1; i <= L; i++){
 			for(int j = 0; j <= newTokens.size() - i; j++) {
-				
 				ArrayList<T> curSequence = new ArrayList<T>();//cursequence creat for each times
-				ArrayList<T> next = new ArrayList<T>();
 				for(int p = 0; p < i; p++) {//get sequence
 						curSequence.add(newTokens.get(j+p));
 					}
 				//create new node with cursequence
 					Node<T> nood = new Node<T>(curSequence);
-					
 					nood.hasSeqAtEndOfDataset = true;
 					root.addNode(nood);	//add nood
 				}
 			
 			}
-	    root.train();
 		sampleSet = newTokens.size();
 		root.pMinElim(sampleSet, pMin);
 		root.rElimination( r, null );
